@@ -1,0 +1,12 @@
+"use client";
+import Link from "next/link";
+import { CartLines, EmptyBag, useStore } from "./store";
+import { Icon } from "./icons";
+import { FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, formatPrice, getProduct } from "@/lib/catalog";
+
+export function ShoppingBagPage() {
+  const { items, hydrated, setEnquiry } = useStore();
+  const subtotal = items.reduce((sum, item) => sum + (getProduct(item.productId)?.price || 0) * item.quantity, 0);
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+  return <main><section className="catalog-hero"><div className="page-container"><div className="breadcrumbs"><Link href="/">Home</Link><span>/</span><span>Shopping bag</span></div><span className="eyebrow">YOUR NEXT BEAUTIFUL CHAPTER</span><h1>A little bag of happiness.</h1><p>Your thoughtfully chosen pieces, all together.</p></div></section><section className="page-container shopping-bag-content">{!hydrated ? <div className="empty-state"><p>Opening your shopping bag…</p></div> : !items.length ? <EmptyBag /> : <div className="shopping-bag-grid"><div><div className="bag-table-heading"><span>YOUR CHOSEN SAREES</span><span>{items.reduce((sum, item) => sum + item.quantity, 0)} pieces</span></div><CartLines /><Link className="text-link continue-shopping" href="/shop"><Icon name="arrow-left" size={17} />Continue exploring</Link></div><aside className="order-summary"><span className="eyebrow">THE FINER DETAILS</span><h2>Your bag, at a glance.</h2><div className="summary-row"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div><div className="summary-row"><span>Estimated shipping</span><span>{shipping ? formatPrice(shipping) : "Complimentary"}</span></div><div className="summary-row total"><span>Estimated total</span><span>{formatPrice(subtotal + shipping)}</span></div><p className="small-note">Final availability, shipping, and pricing are confirmed on enquiry. No payment will be collected here.</p><button className="button button-primary full-width" onClick={() => setEnquiry({ cart: true })}>Enquire to order <Icon name="arrow" size={18} /></button><div className="order-summary-note"><Icon name="whatsapp" size={21} /><span>A personal touch, from choosing to draping.</span></div><p className="integration-note">Demo storefront · This is not a checkout. Enquiries are saved securely; payments and order fulfilment are not connected.</p></aside></div>}</section></main>;
+}
